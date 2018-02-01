@@ -2,7 +2,7 @@
 KERNEL!="sd[a-z][0-9]", GOTO="automount_end"
 
 # Import FS infos
-IMPORT{program}="/sbin/blkid -o udev -p %N"
+IMPORT{program}="/usr/sbin/blkid -o udev -p %N"
 
 # Get a label if present, otherwise specify one
 ENV{ID_FS_LABEL}!="", ENV{dir_name}="%E{ID_FS_LABEL}"
@@ -12,7 +12,7 @@ ENV{ID_FS_LABEL}=="", ENV{dir_name}="usbhd-%k"
 ACTION=="add", ENV{mount_options}="relatime"
 
 # Filesystem-specific mount options. gid must be present in /etc/group
-ACTION=="add", ENV{ID_FS_TYPE}=="vfat|ntfs", ENV{mount_options}="$env{mount_options},nls=utf8,gid=6,umask=002"
+ACTION=="add", ENV{ID_FS_TYPE}=="vfat|ntfs", ENV{mount_options}="$env{mount_options},nls=utf8,flush,rw,noatime,users,gid=1000,umask=002"
 
 # Mount the device
 ACTION=="add", RUN+="/usr/bin/mkdir -p /media/%E{dir_name}", RUN+="/usr/bin/mount -o $env{mount_options} /dev/%k /media/%E{dir_name}"
