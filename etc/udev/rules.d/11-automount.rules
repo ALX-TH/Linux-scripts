@@ -1,0 +1,24 @@
+# Subscripbe for kernel events
+KERNEL!="sd[a-z][0-9]", GOTO="automount_end"
+
+# Import FS infos
+IMPORT{program}="/sbin/blkid -o udev -p %N"
+
+# Get a label if present, otherwise specify one
+ENV{ID_FS_LABEL}!="", ENV{dir_name}="%E{ID_FS_LABEL}"
+ENV{ID_FS_LABEL}=="", ENV{dir_name}="usbhd-%k"
+
+# Global mount options
+ACTION=="add", ENV{mount_options}="relatime"
+
+# Filesystem-specific mount options. gid must be present in /etc/group
+ACTION=="add", ENV{ID_FS_TYPE}=="vfat|ntfs", ENV{mount_options}="$env{mount_options},nls=utf8,gid=6,umask=002"
+
+# Mount the device
+ACTION=="add", RUN+="/usr/bin/mkdir -p /media/%E{dir_name}", RUN+="/usr/bin/mount -o $env{mount_options} /dev/%k /media/%E{dir_name}"
+
+# Clean up after removal
+ACTION=="remove", ENV{dir_name}!="", RUN+="/usr/bin/mount -l /media/%E{dir_name}", RUN+="/usr/bin/rmdir /media/%E{dir_name}"
+
+# Exit
+LABEL="automount_end"
