@@ -120,6 +120,9 @@ ExecReload=/bin/kill -USR2 $MAINPID
 [Install]
 WantedBy=multi-user.target
 EOF
+```
 
+Enable and start service
+```
 systemctl daemon-reload && systemctl enable php7-fpm.service && systemctl start php7-fpm.service
 ```
